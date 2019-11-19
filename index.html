@@ -1,0 +1,19 @@
+<body>
+
+    <script
+        src="./KanbanDB.js"
+        type="text/javascript"
+    >
+    </script>
+    <script>
+        const db = new KanbanDB(null, function ready() {
+            console.log('all cards from DB', db.getCards());
+            db.addCard({ name: 'Update node modules' });
+            db.addCard({ name: 'Make new things' });
+            const cardId = db.addCard({ name: 'Finish this test' });
+            const card = db.getCardById(cardId);
+            console.log('card with id ' + cardId, card);
+            console.log('all cards from DB after inserts', db.getCards());
+        });
+    </script>
+</body>
