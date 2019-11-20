@@ -8,7 +8,6 @@ like FireBase, for example, allowing you to perform CRUD operations on Kanban bo
 
 # Public API
 
-```
 | Function  | Description  |
 |---|---|
 | connect()   | Return instance of connected db |
@@ -18,7 +17,6 @@ like FireBase, for example, allowing you to perform CRUD operations on Kanban bo
 | addCard(cardData)  | Add card to database. An ID will be generated for you. Valid card properties are `name (string)`, `description (string)`, and `status(string)`   |
 | updateCard(id, cardData)  | Returns true if succesful. Last updated timestamp will be increased  |
 | deleteCard(id)  | Returns true if succesful. Will throw an error if card with ID does not exist.|
-```
 
 # Usage Example
 
