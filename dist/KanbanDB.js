@@ -23910,7 +23910,9 @@ function KanbanDB() {
    */
   function isCardValid(card) {
     // Card must have a name
-    const isValid = (typeof card.name === 'string' && card.name.length > 0)
+    const isValid = (card.name && typeof card.name === 'string' && card.name.length > 0)
+      // If description is provided, it must be a strength w/ a length of at least one
+      && card.description ? (typeof card.description === 'string' && card.description.length > 0) :  true
       // If card status is provided, it must be one of the valid statuses
       && (card.status ? Object.keys(CARD_STATUSES).indexOf(card.status) !== -1 : true);
     return isValid;
@@ -23948,6 +23950,7 @@ function KanbanDB() {
         const newCard = {
           ...JSON.parse(card),
           ...cardData,
+          lastUpdated: Date.now(),
         };
 
         if (isCardValid(newCard)) {
@@ -23960,6 +23963,25 @@ function KanbanDB() {
     });
   };
 
+  /**
+   * @returns {Promise<boolean>} true if succesful.
+   */
+  this.deleteCardById = (strId) => {
+    verifyDbReady();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // make sure card exists.
+        const card = localStorage.getItem(addPrefix(strId));
+
+        if (!card) {
+          reject(new Error(`Card with ID ${strId} not found.`));
+        }
+
+        localStorage.removeItem(addPrefix(strId));
+        resolve(true);
+      }, 100);
+    });
+  };
 
   /**
    * @returns {Promise<Card[]>} An array of all cards in the database.
@@ -24030,7 +24052,9 @@ function KanbanDB() {
         const card = {};
         card.id = createGUID();
         card.name = cardData.name;
+        card.description = cardData.description;
         card.status = cardData.status;
+        card.lastUpdated = Date.now();
 
         if (!isCardValid(card)) {
           reject(new Error('Invalid card data.'));
