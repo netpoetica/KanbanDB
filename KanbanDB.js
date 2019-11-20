@@ -7,7 +7,7 @@
  * will have a fresh database.
  * @returns {string} Returns the instance ID if you want to reuse across instatiations.
  */
-function KanbanDB(previousInstanceId) {
+function KanbanDB() {
 	// True is uuid has been loaded via import.
 	let ready = false;
 
@@ -16,11 +16,6 @@ function KanbanDB(previousInstanceId) {
 
 	// All localStorage items will contain this prefix
 	let dataItemPrefix;
-
-	// wipe away any previous data unless it was requested
-	if (!previousInstanceId) {
-		localStorage.clear();
-	}
 
 	const CARD_STATUSES = {
 		TODO: 'TODO',
@@ -118,18 +113,31 @@ function KanbanDB(previousInstanceId) {
 
 	}
 
-	return new Promise((resolve, reject) => {
-		import('https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js')
-			.then(() => {
-				ready = true;
-				dbInstanceId = previousInstanceId || createGUID(); 
-				dataItemPrefix = `KanbanDB--${dbInstanceId}`;
-				resolve(this, dbInstanceId);
-			})
-			.catch(reason => reject(reason));
-	});
+	this.connect = (previousInstanceId) => {
+		return new Promise((resolve, reject) => {
+			import('https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js')
+				.then(() => {
+					ready = true;
+					dbInstanceId = previousInstanceId || createGUID(); 
 
+					// wipe away any previous data unless it was requested
+					if (!previousInstanceId) {
+						localStorage.clear();
+					}
+
+					dataItemPrefix = `KanbanDB--${dbInstanceId}`;
+
+					resolve(this);
+				})
+				.catch((reason) => {
+					reject(reason);
+				});
+		});
+	};
+
+	// Instance handle.
+	return this;
 }
 
 // Export
-window.KanbanDB = KanbanDB;
+window.KanbanDB = new KanbanDB();

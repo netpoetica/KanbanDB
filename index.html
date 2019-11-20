@@ -6,35 +6,69 @@
     >
     </script>
     <script>
-        new KanbanDB()
-            .then(function ready(db, dbInstanceId) {
-                // Add some cards
-                db.addCard({ name: 'Update node modules' })
-                    .then(cardId => console.log('card added with ID ' + cardId))
-                    .catch(err => console.error(err.message));
+        (function promisesExample() {
+            // Using promises
+            KanbanDB
+                .connect()
+                .then(function ready(db) {
+                    // Add some cards
+                    db.addCard({ name: 'Update node modules' })
+                        .then(cardId => console.log('card added with ID ' + cardId))
+                        .catch(err => console.error(err.message));
 
-                db.addCard({ name: 'Make new things' })
-                    .then(cardId => console.log('card added with ID ' + cardId))
-                    .catch(err => console.error(err.message));
+                    db.addCard({ name: 'Make new things' })
+                        .then(cardId => console.log('card added with ID ' + cardId))
+                        .catch(err => console.error(err.message));
 
-                db.addCard({ name: 'Finish this test' })
-                    .then(cardId => console.log('card added with ID ' + cardId))
-                    .catch(err => console.error(err.message));
+                    db.addCard({ name: 'Finish this test' })
+                        .then(cardId => console.log('card added with ID ' + cardId))
+                        .catch(err => console.error(err.message));
 
-                // Get all cards
-                db.getCards()
-                    .then((cards) => {
-                        console.log('all cards from DB (should have new records)', cards);
+                    // Get all cards
+                    db.getCards()
+                        .then((cards) => {
+                            console.log('all cards from DB (should have new records)', cards);
 
-                        // Get an individual card where you know it's ID
-                        db.getCardById(cards[0].id)
-                            .then(card => console.log('card data', card))
-                            .catch(err => console.error(err.message));
-                    })
-                    .catch((err) => {
-                        console.error('error', err.message);
-                    });
+                            // Get an individual card where you know it's ID
+                            db.getCardById(cards[0].id)
+                                .then(card => console.log('card data', card))
+                                .catch(err => console.error(err.message));
+                        })
+                        .catch((err) => {
+                            console.error('error', err.message);
+                        });
 
-            });
+                });
+        }());
+    </script>
+    <script>
+        (async function asyncExample() {
+            // Using async/await 
+            const db = await KanbanDB.connect();
+
+            // Add some cards
+            const cardsData = [
+                { name: 'Update node modules' },
+                { name: 'Make new things' },
+                { name: 'Finish this test' }
+            ];
+
+            for (const card of cardsData) {
+                try {
+                    const cardId = await db.addCard(card);
+                    console.log('card added with ID ' + cardId)
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+
+            // Get all cards
+            const cards = await db.getCards();
+            console.log('all cards from DB (should have new records)', cards);
+
+            // Get an individual card where you know it's ID
+            const card = await db.getCardById(cards[0].id);
+            console.log('card data', card);
+        }());
     </script>
 </body>
