@@ -6,7 +6,7 @@ This repo is a dummy database library for front-end developer testing (interview
 This database uses localStorage in the background, but it is meant to emulate a front-end database client
 like FireBase, for example, allowing you to perform CRUD operations on Kanban board items.
 
-# Public API
+## Public API
 
 | Function  | Description  |
 |---|---|
@@ -18,7 +18,7 @@ like FireBase, for example, allowing you to perform CRUD operations on Kanban bo
 | updateCard(id, cardData)  | Returns true if succesful. Last updated timestamp will be increased  |
 | deleteCard(id)  | Returns true if succesful. Will throw an error if card with ID does not exist.|
 
-# Usage Example
+## Usage Example
 
 You can include KanbanDB directly as a JS script in your HTML file, or you can import it for usage in an app
 that uses a bundler like webpack:
