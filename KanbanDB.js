@@ -7,7 +7,7 @@
  * will have a fresh database.
  * @returns {string} Returns the instance ID if you want to reuse across instatiations.
  */
-function KanbanDB(previousInstanceId, onDatabaseReady) {
+function KanbanDB(previousInstanceId) {
 	// True is uuid has been loaded via import.
 	let ready = false;
 
@@ -16,14 +16,6 @@ function KanbanDB(previousInstanceId, onDatabaseReady) {
 
 	// All localStorage items will contain this prefix
 	let dataItemPrefix;
-
-	import('https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js')
-		.then(() => {
-			ready = true;
-			dbInstanceId = previousInstanceId || createGUID(); 
-			dataItemPrefix = `KanbanDB--${dbInstanceId}`;
-			onDatabaseReady();
-		});
 
 	// wipe away any previous data unless it was requested
 	if (!previousInstanceId) {
@@ -70,28 +62,37 @@ function KanbanDB(previousInstanceId, onDatabaseReady) {
 
 	this.getCardById = function getCardById(strId) {
 		verifyDbReady();
-		const card = localStorage.getItem(addPrefix(strId));	
-		if (!card) {
-			throw new Error(`Card with ID ${strId} not found.`);
-		}
-		return JSON.parse(card);
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				const card = localStorage.getItem(addPrefix(strId));	
+				if (!card) {
+					resolve(new Error(`Card with ID ${strId} not found.`));
+				}
+				resolve(JSON.parse(card));
+			}, 100);
+		});
 	}
 
 	this.getCards = function getCards() {
 		verifyDbReady();
-		const results = [];
-		const keys = Object.keys(localStorage);
-		const filtered = keys.filter((strKey) => {
-			return strKey.indexOf(dataItemPrefix) > -1;
+
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				const results = [];
+				const keys = Object.keys(localStorage);
+				const filtered = keys.filter((strKey) => {
+					return strKey.indexOf(dataItemPrefix) > -1;
+				});
+
+				for (const key of filtered) {
+					// we don't add prefix here because key is already fully qualified
+					const item = localStorage.getItem(key);
+					results.push(JSON.parse(item));
+				}
+
+				resolve(results);
+			}, 100);
 		});
-
-		for (const key of filtered) {
-			// we don't add prefix here because key is already fully qualified
-			const item = localStorage.getItem(key);
-			results.push(JSON.parse(item));
-		}
-
-		return results;
 	}
 
 	/**
@@ -100,20 +101,34 @@ function KanbanDB(previousInstanceId, onDatabaseReady) {
 	this.addCard = function addCard(card) {
 		verifyDbReady();
 
-		if (!isCardValid(card)) {
-			throw new Error('Invalid card data.');
-		}
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				// We set the unique ID.
+				card.id = createGUID();
 
-		// We set the unique ID.
-		card.id = createGUID();
+				if (!isCardValid(card)) {
+					reject(new Error('Invalid card data.'));
+				}
 
-		const cardKey = addPrefix(card.id);
-		localStorage.setItem(cardKey, JSON.stringify(card));	
+				const cardKey = addPrefix(card.id);
+				localStorage.setItem(cardKey, JSON.stringify(card));	
+				resolve(String(card.id));
+			}, 100)
+		});
 
-		return String(card.id);
 	}
 
-	return dbInstanceId;
+	return new Promise((resolve, reject) => {
+		import('https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js')
+			.then(() => {
+				ready = true;
+				dbInstanceId = previousInstanceId || createGUID(); 
+				dataItemPrefix = `KanbanDB--${dbInstanceId}`;
+				resolve(this, dbInstanceId);
+			})
+			.catch(reason => reject(reason));
+	});
+
 }
 
 // Export

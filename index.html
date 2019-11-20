@@ -6,14 +6,35 @@
     >
     </script>
     <script>
-        const db = new KanbanDB(null, function ready() {
-            console.log('all cards from DB', db.getCards());
-            db.addCard({ name: 'Update node modules' });
-            db.addCard({ name: 'Make new things' });
-            const cardId = db.addCard({ name: 'Finish this test' });
-            const card = db.getCardById(cardId);
-            console.log('card with id ' + cardId, card);
-            console.log('all cards from DB after inserts', db.getCards());
-        });
+        new KanbanDB()
+            .then(function ready(db, dbInstanceId) {
+                // Add some cards
+                db.addCard({ name: 'Update node modules' })
+                    .then(cardId => console.log('card added with ID ' + cardId))
+                    .catch(err => console.error(err.message));
+
+                db.addCard({ name: 'Make new things' })
+                    .then(cardId => console.log('card added with ID ' + cardId))
+                    .catch(err => console.error(err.message));
+
+                db.addCard({ name: 'Finish this test' })
+                    .then(cardId => console.log('card added with ID ' + cardId))
+                    .catch(err => console.error(err.message));
+
+                // Get all cards
+                db.getCards()
+                    .then((cards) => {
+                        console.log('all cards from DB (should have new records)', cards);
+
+                        // Get an individual card where you know it's ID
+                        db.getCardById(cards[0].id)
+                            .then(card => console.log('card data', card))
+                            .catch(err => console.error(err.message));
+                    })
+                    .catch((err) => {
+                        console.error('error', err.message);
+                    });
+
+            });
     </script>
 </body>
