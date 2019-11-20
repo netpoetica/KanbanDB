@@ -2,9 +2,6 @@ import { v4 } from 'node-uuid';
 
 /**
  *
- * @param {string} dbInstanceId If you want to persist data across instantation, pass
- * the instance ID from a previous instation. Otherwise, every time you instantiate, you
- * will have a fresh database.
  * @returns {string} Returns the instance ID if you want to reuse across instatiations.
  */
 function KanbanDB() {
@@ -33,7 +30,7 @@ function KanbanDB() {
 
   /**
    *
-   * @param {*} strDbKey
+   * @param {string} strDbKey
    * @returns {string} Key prefixed by unique database instance.
    */
   function addPrefix(strDbKey) {
@@ -42,7 +39,7 @@ function KanbanDB() {
 
   /**
    * Verify the data structure of the card is valid for usage in database.
-   * @param {*} card
+   * @param {Card} card
    * @returns {boolean}
    */
   function isCardValid(card) {
@@ -53,6 +50,9 @@ function KanbanDB() {
     return isValid;
   }
 
+  /**
+   * @returns {Promise<Card>} A single card, if found.
+   */
   this.getCardById = function getCardById(strId) {
     verifyDbReady();
     return new Promise((resolve, reject) => {
@@ -66,6 +66,10 @@ function KanbanDB() {
     });
   };
 
+
+  /**
+   * @returns {Promise<Card[]>} An array of all cards in the database.
+   */
   this.getCards = function getCards() {
     verifyDbReady();
 
@@ -90,7 +94,7 @@ function KanbanDB() {
   };
 
   /**
-   * @returns {string} Returns a unique ID for the user to recall card again later.
+   * @returns {Promise<string>} A unique ID for the user to recall card again later.
    */
   this.addCard = function addCard(cardData) {
     verifyDbReady();
@@ -114,6 +118,12 @@ function KanbanDB() {
     });
   };
 
+  /**
+   * @param {string} previousInstanceId If you want to persist data across instantation, pass
+   * the instance ID from a previous instantiation. Otherwise, every time you instantiate, you
+   * will have a fresh database.
+   * @returns {Promise} A handle to the KanbanDB instance.
+   */
   this.connect = (previousInstanceId) => new Promise((resolve) => {
     ready = true;
     dbInstanceId = previousInstanceId || createGUID();
