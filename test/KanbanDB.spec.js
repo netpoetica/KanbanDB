@@ -1,16 +1,15 @@
 /* eslint-env jest */
 import KanbanDB from '../src/KanbanDB';
 
-let db;
-test('.connect() should return db instance', async () => {
-  db = await KanbanDB.connect();
+test('should connect, add, get cards from database, and delete', async () => {
+  const db = await KanbanDB.connect();
   expect(typeof db.addCard).toBe('function');
-});
 
-test('should add and get cards from database', async () => {
   const cards = [
     { name: 'helloworld' },
-    { name: 'abcdef', status: 'TODO' }
+    { name: 'abcdef', status: 'TODO', description: 'early alphabet' },
+    { name: 'goodbyeworld', status: 'DONE' },
+    { name: 'xyz', status: 'DONE', description: 'late alphabet' },
   ];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -25,6 +24,38 @@ test('should add and get cards from database', async () => {
     expect(cardData.status).toBe(card.status);
   }
 
-  const allCards = await db.getCards();
+  let allCards = await db.getCards();
   expect(allCards.length).toBe(cards.length);
+
+  let cardsThatAreTodoStatus = await db.getCardsByStatusCodes(['TODO']);
+  expect(cardsThatAreTodoStatus.length).toBe(1);
+
+  const cardsThatAreDoneStatus = await db.getCardsByStatusCodes(['DONE']);
+  expect(cardsThatAreDoneStatus.length).toBe(2);
+
+  const cardsThatAreDoneAndTodoStatus = await db.getCardsByStatusCodes(['DONE', 'TODO']);
+  expect(cardsThatAreDoneAndTodoStatus.length).toBe(3);
+
+  // Update status of TODO card to done
+  const card = cardsThatAreTodoStatus[0];
+  card.status = 'DONE';
+  const bResult = await db.updateCardById(card.id, card);
+  expect(bResult).toBe(true);
+  const newCard = await db.getCardById(card.id);
+  expect(newCard.status).toBe('DONE');
+
+  cardsThatAreTodoStatus = await db.getCardsByStatusCodes(['TODO']);
+  expect(cardsThatAreTodoStatus.length).toBe(0);
+
+  // should be able to delete cards
+  const deleteResult = await db.deleteCardById(card.id);
+  expect(deleteResult).toBe(true);
+  try {
+    await db.getCardById(card.id);
+  } catch (e) {
+    expect(typeof e.message).toBe('string');
+  }
+  allCards = await db.getCards();
+  // -1 because we just deleted
+  expect(allCards.length).toBe(cards.length - 1);
 });

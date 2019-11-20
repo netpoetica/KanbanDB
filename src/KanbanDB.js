@@ -44,7 +44,9 @@ function KanbanDB() {
    */
   function isCardValid(card) {
     // Card must have a name
-    const isValid = (typeof card.name === 'string' && card.name.length > 0)
+    const isValid = (card.name && typeof card.name === 'string' && card.name.length > 0)
+      // If description is provided, it must be a strength w/ a length of at least one
+      && card.description ? (typeof card.description === 'string' && card.description.length > 0) : true
       // If card status is provided, it must be one of the valid statuses
       && (card.status ? Object.keys(CARD_STATUSES).indexOf(card.status) !== -1 : true);
     return isValid;
@@ -53,7 +55,7 @@ function KanbanDB() {
   /**
    * @returns {Promise<Card>} A single card, if found.
    */
-  this.getCardById = function getCardById(strId) {
+  this.getCardById = (strId) => {
     verifyDbReady();
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -66,11 +68,59 @@ function KanbanDB() {
     });
   };
 
+  /**
+   * @returns {Promise<boolean>} true if succesful.
+   */
+  this.updateCardById = (strId, cardData) => {
+    verifyDbReady();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // make sure card exists.
+        const card = localStorage.getItem(addPrefix(strId));
+        if (!card) {
+          reject(new Error(`Card with ID ${strId} not found.`));
+        }
+
+        const newCard = {
+          ...JSON.parse(card),
+          ...cardData,
+          lastUpdated: Date.now(),
+        };
+
+        if (isCardValid(newCard)) {
+          localStorage.setItem(addPrefix(strId), JSON.stringify(newCard));
+          resolve(true);
+        } else {
+          reject(new Error('New card data invalid.'));
+        }
+      }, 100);
+    });
+  };
+
+  /**
+   * @returns {Promise<boolean>} true if succesful.
+   */
+  this.deleteCardById = (strId) => {
+    verifyDbReady();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // make sure card exists.
+        const card = localStorage.getItem(addPrefix(strId));
+
+        if (!card) {
+          reject(new Error(`Card with ID ${strId} not found.`));
+        }
+
+        localStorage.removeItem(addPrefix(strId));
+        resolve(true);
+      }, 100);
+    });
+  };
 
   /**
    * @returns {Promise<Card[]>} An array of all cards in the database.
    */
-  this.getCards = function getCards() {
+  this.getCards = () => {
     verifyDbReady();
 
     return new Promise((resolve, reject) => {
@@ -94,9 +144,40 @@ function KanbanDB() {
   };
 
   /**
+   * @param {string[]} arrStatusCodes An array of valid status codes.
+   * @returns {Promise<Card[]>} An array of all cards with specific status codes.
+   */
+  this.getCardsByStatusCodes = (arrStatusCodes) => {
+    verifyDbReady();
+
+    return new Promise((resolve, reject) => {
+      let i;
+      for (i = 0; i < arrStatusCodes.length; i += 1) {
+        if (Object.keys(CARD_STATUSES).indexOf(arrStatusCodes[i]) === -1) {
+          reject(new Error('Invalid status'));
+        }
+      }
+
+      setTimeout(() => {
+        const results = [];
+
+        this.getCards().then((arrCards) => {
+          arrCards.forEach((card) => {
+            if (arrStatusCodes.indexOf(card.status) !== -1) {
+              results.push(card);
+            }
+          });
+
+          resolve(results);
+        });
+      }, 100);
+    });
+  };
+
+  /**
    * @returns {Promise<string>} A unique ID for the user to recall card again later.
    */
-  this.addCard = function addCard(cardData) {
+  this.addCard = (cardData) => {
     verifyDbReady();
 
     return new Promise((resolve, reject) => {
@@ -105,7 +186,9 @@ function KanbanDB() {
         const card = {};
         card.id = createGUID();
         card.name = cardData.name;
+        card.description = cardData.description;
         card.status = cardData.status;
+        card.lastUpdated = Date.now();
 
         if (!isCardValid(card)) {
           reject(new Error('Invalid card data.'));
