@@ -21,6 +21,9 @@ test('should connect, add, get cards from database, and delete', async () => {
     // eslint-disable-next-line no-await-in-loop
     const cardData = await db.getCardById(cardId);
     expect(cardData.name).toBe(card.name);
+    expect(cardData.description).toBe(card.description);
+    expect(typeof cardData.created).toBe('number');
+    expect(typeof cardData.lastUpdated).toBe('number');
     expect(cardData.status).toBe(card.status);
   }
 

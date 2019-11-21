@@ -18,6 +18,22 @@ like FireBase, for example, allowing you to perform CRUD operations on Kanban bo
 | updateCard(id, cardData)  | Returns true if succesful. Last updated timestamp will be increased  |
 | deleteCard(id)  | Returns true if succesful. Will throw an error if card with ID does not exist.|
 
+
+## Card Data Structure
+
+A card in the database has the following structure:
+
+```
+{
+  id: string;
+  name: string;
+  description?: string;
+  status: 'TODO' | 'DOING' | 'DONE';
+  created: Date; // UNIX timestamp
+  lastUpdated: Date; // UNIX timestamp
+}
+```
+
 ## Usage Example
 
 You can include KanbanDB directly as a JS script in your HTML file, or you can import it for usage in an app

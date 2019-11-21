@@ -1,5 +1,19 @@
 import { v4 } from 'node-uuid';
 
+/*
+
+A card in the database looks like:
+
+{
+  id: string;
+  name: string;
+  description: string;
+  status: 'TODO' | 'DOING' | 'DONE';
+  created: Date; // UNIX timestamp
+  lastUpdated: Date; // UNIX timestamp
+}
+*/
+
 /**
  *
  * @returns {string} Returns the instance ID if you want to reuse across instatiations.
@@ -188,6 +202,7 @@ function KanbanDB() {
         card.name = cardData.name;
         card.description = cardData.description;
         card.status = cardData.status;
+        card.created = Date.now();
         card.lastUpdated = Date.now();
 
         if (!isCardValid(card)) {
