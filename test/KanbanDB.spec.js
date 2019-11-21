@@ -61,4 +61,15 @@ test('should connect, add, get cards from database, and delete', async () => {
   allCards = await db.getCards();
   // -1 because we just deleted
   expect(allCards.length).toBe(cards.length - 1);
+
+  const disconnected = await db.disconnect();
+  expect(disconnected).toBe(true);
+
+  // once disconnected, things should throw
+  try {
+    await db.getCardById(card.id);
+  } catch (e) {
+    // It should have thrown
+    expect(typeof e.message).toBe('string');
+  }
 });

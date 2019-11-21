@@ -236,6 +236,14 @@ function KanbanDB() {
     resolve(this);
   });
 
+  // It just nullifies instance.
+  this.disconnect = () => new Promise((resolve) => {
+    ready = false;
+    dbInstanceId = null;
+    dataItemPrefix = null;
+    resolve(true);
+  });
+
   // Instance handle.
   return this;
 }
