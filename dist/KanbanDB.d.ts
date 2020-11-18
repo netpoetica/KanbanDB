@@ -7,7 +7,7 @@ export type Card = {
     created?: Date | undefined;
     lastUpdated?: Date | undefined;
 };
-export type CARD_STATUS = "TODO" | "DOING" | "DONE";
+export type CARD_STATUS = "TODO" | "IN_PROGRESS" | "DONE";
 /**
  * @typedef Card
  * @type {object}
@@ -68,6 +68,6 @@ declare class KanbanDB {
 }
 declare namespace CARD_STATUS {
     const TODO: string;
-    const DOING: string;
+    const IN_PROGRESS: string;
     const DONE: string;
 }
