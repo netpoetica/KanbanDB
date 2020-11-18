@@ -15,8 +15,8 @@ like FireBase, for example, allowing you to perform CRUD operations on Kanban bo
 | getCardsByStatusCodes(arr)  | Get cards matching status codes passed in array. Valid status codes are 'TODO', 'DOING', and 'DONE'. Example `getCardByStatusCodes(['TODO','DOING'])`  |
 | getCardById(id)  | Returns a single card if it exists in DB   |
 | addCard(cardData)  | Add card to database. An ID will be generated for you. Valid card properties are `name (string)`, `description (string)`, and `status(string)`   |
-| updateCard(id, cardData)  | Returns true if succesful. Last updated timestamp will be increased  |
-| deleteCard(id)  | Returns true if succesful. Will throw an error if card with ID does not exist.|
+| updateCardById(id, cardData)  | Returns true if succesful. Last updated timestamp will be increased  |
+| deleteCardById(id)  | Returns true if succesful. Will throw an error if card with ID does not exist.|
 
 
 ## Card Data Structure

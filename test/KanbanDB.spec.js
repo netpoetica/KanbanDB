@@ -1,6 +1,16 @@
 /* eslint-env jest */
 import KanbanDB from '../src/KanbanDB';
 
+test('public API should be as per documentation', async () => {
+  const db = await KanbanDB.connect();
+  expect(typeof db.getCards).toBe('function');
+  expect(typeof db.getCardsByStatusCodes).toBe('function');
+  expect(typeof db.getCardById).toBe('function');
+  expect(typeof db.addCard).toBe('function');
+  expect(typeof db.updateCardById).toBe('function');
+  expect(typeof db.deleteCardById).toBe('function');
+});
+
 test('should connect, add, get cards from database, and delete', async () => {
   const db = await KanbanDB.connect();
   expect(typeof db.addCard).toBe('function');
