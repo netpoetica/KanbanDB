@@ -8,18 +8,18 @@ A card in the database looks like:
   id: string;
   name: string;
   description: string;
-  status: 'TODO' | 'DOING' | 'DONE';
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
   created: Date; // UNIX timestamp
   lastUpdated: Date; // UNIX timestamp
 }
 */
 
 /**
- * @enum {'TODO'|'DOING'|'DONE'}
+ * @enum {'TODO'|'IN_PROGRESS'|'DONE'}
  */
 const CARD_STATUS = {
   TODO: 'TODO',
-  DOING: 'DOING',
+  IN_PROGRESS: 'IN_PROGRESS',
   DONE: 'DONE',
 };
 
