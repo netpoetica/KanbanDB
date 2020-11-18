@@ -15,8 +15,26 @@ A card in the database looks like:
 */
 
 /**
- *
- * @returns {string} Returns the instance ID if you want to reuse across instatiations.
+ * @enum {'TODO'|'DOING'|'DONE'}
+ */
+const CARD_STATUS = {
+  TODO: 'TODO',
+  DOING: 'DOING',
+  DONE: 'DONE',
+};
+
+/**
+ * @typedef Card
+ * @type {object}
+ * @property {string=} name
+ * @property {string=} description
+ * @property {CARD_STATUS=} status
+ * @property {Date=} created
+ * @property {Date=} lastUpdated
+ */
+
+/**
+ * @returns {KanbanDB}
  */
 function KanbanDB() {
   // True is uuid has been loaded via import.
@@ -27,12 +45,6 @@ function KanbanDB() {
 
   // All localStorage items will contain this prefix
   let dataItemPrefix;
-
-  const CARD_STATUSES = {
-    TODO: 'TODO',
-    DOING: 'DOING',
-    DONE: 'DONE',
-  };
 
   function createGUID() {
     return v4();
@@ -62,7 +74,7 @@ function KanbanDB() {
       // If description is provided, it must be a strength w/ a length of at least one
       && card.description ? (typeof card.description === 'string' && card.description.length > 0) : true
       // If card status is provided, it must be one of the valid statuses
-      && (card.status ? Object.keys(CARD_STATUSES).indexOf(card.status) !== -1 : true);
+      && (card.status ? Object.keys(CARD_STATUS).indexOf(card.status) !== -1 : true);
     return isValid;
   }
 
@@ -83,6 +95,8 @@ function KanbanDB() {
   };
 
   /**
+   * @param {string} id Card ID
+   * @param {Card} cardData Card data
    * @returns {Promise<boolean>} true if succesful.
    */
   this.updateCardById = (strId, cardData) => {
@@ -112,6 +126,7 @@ function KanbanDB() {
   };
 
   /**
+   * @param {string} id Card ID
    * @returns {Promise<boolean>} true if succesful.
    */
   this.deleteCardById = (strId) => {
@@ -158,7 +173,7 @@ function KanbanDB() {
   };
 
   /**
-   * @param {string[]} arrStatusCodes An array of valid status codes.
+   * @param {CARD_STATUS[]} arrStatusCodes An array of valid status codes.
    * @returns {Promise<Card[]>} An array of all cards with specific status codes.
    */
   this.getCardsByStatusCodes = (arrStatusCodes) => {
@@ -167,7 +182,7 @@ function KanbanDB() {
     return new Promise((resolve, reject) => {
       let i;
       for (i = 0; i < arrStatusCodes.length; i += 1) {
-        if (Object.keys(CARD_STATUSES).indexOf(arrStatusCodes[i]) === -1) {
+        if (Object.keys(CARD_STATUS).indexOf(arrStatusCodes[i]) === -1) {
           reject(new Error('Invalid status'));
         }
       }
@@ -189,6 +204,7 @@ function KanbanDB() {
   };
 
   /**
+   * @param {Card} cardData Card data
    * @returns {Promise<string>} A unique ID for the user to recall card again later.
    */
   this.addCard = (cardData) => {
@@ -220,9 +236,9 @@ function KanbanDB() {
    * @param {string} previousInstanceId If you want to persist data across instantation, pass
    * the instance ID from a previous instantiation. Otherwise, every time you instantiate, you
    * will have a fresh database.
-   * @returns {Promise} A handle to the KanbanDB instance.
+   * @returns {Promise<KanbanDB>} A handle to the KanbanDB instance.
    */
-  this.connect = (previousInstanceId) => new Promise((resolve) => {
+  this.connect = (previousInstanceId = null) => new Promise((resolve) => {
     ready = true;
     dbInstanceId = previousInstanceId || createGUID();
 
@@ -235,6 +251,13 @@ function KanbanDB() {
 
     resolve(this);
   });
+
+  /**
+   * @returns {string} Current database instance ID, which can later
+   * be passed to .connect(instanceID) to keep your data alive in local
+   * storage.
+   */
+  this.getInstanceId = () => dbInstanceId;
 
   // It just nullifies instance.
   this.disconnect = () => new Promise((resolve) => {

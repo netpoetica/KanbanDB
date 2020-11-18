@@ -11,6 +11,13 @@ test('public API should be as per documentation', async () => {
   expect(typeof db.deleteCardById).toBe('function');
 });
 
+test('should be able to re-use previous instanceID to keep localstorage alive', async () => {
+  const db = await KanbanDB.connect();
+  const instanceId = db.getInstanceId();
+  const newDb = await KanbanDB.connect(instanceId);
+  expect(newDb.getInstanceId()).toBe(instanceId);
+});
+
 test('should connect, add, get cards from database, and delete', async () => {
   const db = await KanbanDB.connect();
   expect(typeof db.addCard).toBe('function');
