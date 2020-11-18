@@ -2,7 +2,7 @@
   "name": "kanbandb",
   "version": "1.0.0",
   "description": "KanbanDB is a dummy db module for usage in interviews to emulate database interaction with async behavior.",
-  "main": "KanbanDB.js",
+  "main": "./dist/KanbanDB.js",
   "private": true,
   "scripts": {
     "build": "webpack && tsc",
